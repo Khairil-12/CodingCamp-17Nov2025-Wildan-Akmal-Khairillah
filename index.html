@@ -13,12 +13,15 @@
   <body>
     <nav class="navbar">
       <div class="nav-container">
+        <!-- Logo -->
         <div class="nav-logo">
           <div class="logo">
             <i class="fas fa-coffee"></i>
             KOPI PRIMA
           </div>
         </div>
+
+        <!-- Menu Navigasi -->
         <ul class="nav-menu">
           <li class="nav-item">
             <a href="#home" class="nav-link active">Home</a>
@@ -36,6 +39,17 @@
             <a href="#contact" class="nav-link">Contact</a>
           </li>
         </ul>
+
+        <!-- Login Section untuk Desktop -->
+        <div id="loginSection" class="login-section">
+          <span id="userInfo" class="user-info" style="display: none"></span>
+          <button id="loginBtn" class="btn btn-login">Login</button>
+          <button id="logoutBtn" class="btn btn-logout" style="display: none">
+            Logout
+          </button>
+        </div>
+
+        <!-- Hamburger Menu -->
         <div class="hamburger">
           <span class="bar"></span>
           <span class="bar"></span>
@@ -43,6 +57,49 @@
         </div>
       </div>
     </nav>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Login to Kopi Prima</h2>
+          <span id="closeLogin" class="close">&times;</span>
+        </div>
+        <form id="loginForm" class="login-form">
+          <div class="form-group">
+            <label for="loginUsername">Username *</label>
+            <input
+              type="text"
+              id="loginUsername"
+              name="username"
+              placeholder="Enter your username"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="loginEmail">Email *</label>
+            <input
+              type="email"
+              id="loginEmail"
+              name="email"
+              placeholder="Enter your email"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="loginPassword">Password *</label>
+            <input
+              type="password"
+              id="loginPassword"
+              name="password"
+              placeholder="Enter your password"
+              required
+            />
+          </div>
+          <button type="submit" class="btn btn-primary">Login</button>
+        </form>
+      </div>
+    </div>
 
     <main class="main-content">
       <section id="home" class="section">
@@ -245,34 +302,42 @@
                 <div class="process-steps">
                   <div class="step">
                     <div class="step-number">01</div>
-                    <h4>Seleksi Biji</h4>
-                    <p>
-                      Biji kopi dipilih secara manual untuk memastikan hanya
-                      yang terbaik yang diproses
-                    </p>
+                    <div class="step-content">
+                      <h4>Seleksi Biji</h4>
+                      <p>
+                        Biji kopi dipilih secara manual untuk memastikan hanya
+                        yang terbaik yang diproses
+                      </p>
+                    </div>
                   </div>
                   <div class="step">
                     <div class="step-number">02</div>
-                    <h4>Pengolahan</h4>
-                    <p>
-                      Proses pengolahan menggunakan teknologi modern dengan
-                      kontrol kualitas ketat
-                    </p>
+                    <div class="step-content">
+                      <h4>Pengolahan</h4>
+                      <p>
+                        Proses pengolahan menggunakan teknologi modern dengan
+                        kontrol kualitas ketat
+                      </p>
+                    </div>
                   </div>
                   <div class="step">
                     <div class="step-number">03</div>
-                    <h4>Pemanggangan</h4>
-                    <p>
-                      Pemanggangan dengan suhu terkontrol untuk mengoptimalkan
-                      cita rasa
-                    </p>
+                    <div class="step-content">
+                      <h4>Pemanggangan</h4>
+                      <p>
+                        Pemanggangan dengan suhu terkontrol untuk mengoptimalkan
+                        cita rasa
+                      </p>
+                    </div>
                   </div>
                   <div class="step">
                     <div class="step-number">04</div>
-                    <h4>Pengemasan</h4>
-                    <p>
-                      Pengemasan vakum untuk menjaga kesegaran dan aroma kopi
-                    </p>
+                    <div class="step-content">
+                      <h4>Pengemasan</h4>
+                      <p>
+                        Pengemasan vakum untuk menjaga kesegaran dan aroma kopi
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -386,7 +451,7 @@
                   </div>
 
                   <div class="form-group">
-                    <label for="company">Perusahaan *</label>
+                    <label for="company">Perusahaan</label>
                     <input
                       type="text"
                       id="company"
@@ -492,7 +557,7 @@
               <h4>Kontak</h4>
               <div class="footer-contact">
                 <p>
-                  <i class="fas fa-map-marker-alt"></i> Jakarta Selatan 1256
+                  <i class="fas fa-map-marker-alt"></i> Jakarta Selatan 12560
                 </p>
                 <p><i class="fas fa-phone"></i> +62 857 9992 6085</p>
                 <p><i class="fas fa-envelope"></i> info@kopiprima.co.id</p>
