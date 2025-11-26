@@ -1,4 +1,66 @@
 document.addEventListener("DOMContentLoaded", function () {
+  // ===== INITIALIZE USER DATABASE =====
+  function initializeUserDatabase() {
+    if (!localStorage.getItem("users")) {
+      const defaultUsers = [
+        {
+          id: 1,
+          username: "admin",
+          password: "admin123",
+          email: "admin@kopiprima.com",
+          phone: "08123456789",
+          createdAt: new Date().toISOString(),
+        },
+        {
+          id: 2,
+          username: "customer",
+          password: "customer123",
+          email: "customer@example.com",
+          phone: "0876543210",
+          createdAt: new Date().toISOString(),
+        },
+      ];
+      localStorage.setItem("users", JSON.stringify(defaultUsers));
+    }
+  }
+
+  // Di script.js - hapus auth functions, tambah ini:
+  document.addEventListener("DOMContentLoaded", function () {
+    const auth = window.authSystem;
+
+    // Initialize auth UI
+    auth.updateAuthUI();
+
+    // Logout functionality
+    const logoutBtn = document.getElementById("logoutBtn");
+    if (logoutBtn) {
+      logoutBtn.addEventListener("click", async function () {
+        const result = await auth.logout();
+        if (result.success) {
+          alert("Anda telah logout!");
+          auth.updateAuthUI();
+        }
+      });
+    }
+
+    // Mobile logout
+    const logoutBtnMobile = document.getElementById("logoutBtnMobile");
+    if (logoutBtnMobile) {
+      logoutBtnMobile.addEventListener("click", async function () {
+        const result = await auth.logout();
+        if (result.success) {
+          alert("Anda telah logout!");
+          auth.updateAuthUI();
+          // Close mobile menu
+          hamburger.classList.remove("active");
+          navMenu.classList.remove("active");
+        }
+      });
+    }
+
+    // ... rest of your existing code
+  });
+
   // ===== MOBILE NAVIGATION =====
   const hamburger = document.querySelector(".hamburger");
   const navMenu = document.querySelector(".nav-menu");
@@ -10,7 +72,6 @@ document.addEventListener("DOMContentLoaded", function () {
     // Jika di mobile, tambahkan mobile login ke menu
     if (window.innerWidth <= 768) {
       if (navMenu.classList.contains("active")) {
-        // Cari atau buat mobile login item
         let mobileLoginItem = document.querySelector(".mobile-login");
         if (!mobileLoginItem) {
           mobileLoginItem = document.createElement("li");
@@ -18,13 +79,11 @@ document.addEventListener("DOMContentLoaded", function () {
           mobileLoginItem.innerHTML = `
             <div class="login-section-mobile">
               <span id="userInfoMobile" class="user-info" style="display: none"></span>
-              <button id="loginBtnMobile" class="btn btn-login">Login</button>
+              <a href="login.html" id="loginBtnMobile" class="btn btn-login">Login</a>
               <button id="logoutBtnMobile" class="btn btn-logout" style="display: none">Logout</button>
             </div>
           `;
           navMenu.appendChild(mobileLoginItem);
-
-          // Update event listeners untuk mobile
           updateMobileEventListeners();
           updateMobileLoginUI();
         } else {
@@ -47,6 +106,39 @@ document.addEventListener("DOMContentLoaded", function () {
       navMenu.classList.remove("active");
     });
   });
+
+  // ===== MOBILE LOGIN SYSTEM =====
+  function updateMobileLoginUI() {
+    const auth = checkAuthentication();
+    const userInfoMobile = document.getElementById("userInfoMobile");
+    const loginBtnMobile = document.getElementById("loginBtnMobile");
+    const logoutBtnMobile = document.getElementById("logoutBtnMobile");
+
+    if (userInfoMobile && loginBtnMobile && logoutBtnMobile) {
+      if (auth.isLoggedIn && auth.user) {
+        userInfoMobile.textContent = `Hello, ${auth.user.username}`;
+        userInfoMobile.style.display = "inline";
+        logoutBtnMobile.style.display = "inline";
+        loginBtnMobile.style.display = "none";
+      } else {
+        userInfoMobile.style.display = "none";
+        logoutBtnMobile.style.display = "none";
+        loginBtnMobile.style.display = "inline";
+      }
+    }
+  }
+
+  function updateMobileEventListeners() {
+    const logoutBtnMobile = document.getElementById("logoutBtnMobile");
+    if (logoutBtnMobile) {
+      logoutBtnMobile.addEventListener("click", function () {
+        logout();
+        // Tutup menu mobile setelah logout
+        hamburger.classList.remove("active");
+        navMenu.classList.remove("active");
+      });
+    }
+  }
 
   // ===== SMOOTH SCROLLING =====
   document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
@@ -89,185 +181,6 @@ document.addEventListener("DOMContentLoaded", function () {
         link.classList.add("active");
       }
     });
-  }
-
-  // ===== WELCOME MESSAGE SYSTEM =====
-  function updateWelcomeMessage() {
-    const storedName = localStorage.getItem("userName");
-    const userNameElement = document.getElementById("userName");
-
-    if (storedName && userNameElement) {
-      userNameElement.textContent = storedName;
-    } else {
-      userNameElement.textContent = "Guest";
-    }
-  }
-
-  // ===== LOGIN SYSTEM =====
-  function initializeLoginSystem() {
-    const loginModal = document.getElementById("loginModal");
-    const loginBtn = document.getElementById("loginBtn");
-    const closeLogin = document.getElementById("closeLogin");
-    const loginForm = document.getElementById("loginForm");
-    const logoutBtn = document.getElementById("logoutBtn");
-    const userInfo = document.getElementById("userInfo");
-
-    // Show login modal
-    if (loginBtn) {
-      loginBtn.addEventListener("click", function () {
-        loginModal.style.display = "flex";
-        document.body.style.overflow = "hidden";
-      });
-    }
-
-    // Close login modal
-    if (closeLogin) {
-      closeLogin.addEventListener("click", function () {
-        loginModal.style.display = "none";
-        document.body.style.overflow = "auto";
-      });
-    }
-
-    // Close modal when clicking outside
-    if (loginModal) {
-      loginModal.addEventListener("click", function (e) {
-        if (e.target === loginModal) {
-          loginModal.style.display = "none";
-          document.body.style.overflow = "auto";
-        }
-      });
-    }
-
-    // Login form submission
-    if (loginForm) {
-      loginForm.addEventListener("submit", function (e) {
-        e.preventDefault();
-
-        const username = document.getElementById("loginUsername").value.trim();
-        const email = document.getElementById("loginEmail").value.trim();
-        const password = document.getElementById("loginPassword").value.trim();
-
-        // Simple validation
-        if (!username || !email || !password) {
-          alert("Please fill in all fields");
-          return;
-        }
-
-        // Email validation
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(email)) {
-          alert("Please enter a valid email address");
-          return;
-        }
-
-        // Simulate login
-        localStorage.setItem("userName", username);
-        localStorage.setItem("userEmail", email);
-        localStorage.setItem("isLoggedIn", "true");
-
-        updateWelcomeMessage();
-        updateLoginUI();
-        updateMobileLoginUI();
-
-        loginModal.style.display = "none";
-        document.body.style.overflow = "auto";
-        loginForm.reset();
-
-        alert(`Welcome back, ${username}!`);
-      });
-    }
-
-    // Logout functionality
-    if (logoutBtn) {
-      logoutBtn.addEventListener("click", function () {
-        localStorage.removeItem("userName");
-        localStorage.removeItem("userEmail");
-        localStorage.removeItem("isLoggedIn");
-        updateWelcomeMessage();
-        updateLoginUI();
-        updateMobileLoginUI();
-        alert("You have been logged out successfully.");
-      });
-    }
-
-    // Update login UI based on authentication status
-    function updateLoginUI() {
-      const isLoggedIn = localStorage.getItem("isLoggedIn");
-      const userName = localStorage.getItem("userName");
-
-      const userInfo = document.getElementById("userInfo");
-      const logoutBtn = document.getElementById("logoutBtn");
-      const loginBtn = document.getElementById("loginBtn");
-
-      if (userInfo && logoutBtn && loginBtn) {
-        if (isLoggedIn && userName) {
-          userInfo.textContent = `Hello, ${userName}`;
-          userInfo.style.display = "inline";
-          logoutBtn.style.display = "inline";
-          loginBtn.style.display = "none";
-        } else {
-          userInfo.style.display = "none";
-          logoutBtn.style.display = "none";
-          loginBtn.style.display = "inline";
-        }
-      }
-    }
-
-    // Initialize UI on page load
-    updateLoginUI();
-  }
-
-  // ===== MOBILE LOGIN SYSTEM =====
-  function updateMobileLoginUI() {
-    const isLoggedIn = localStorage.getItem("isLoggedIn");
-    const userName = localStorage.getItem("userName");
-
-    const userInfoMobile = document.getElementById("userInfoMobile");
-    const loginBtnMobile = document.getElementById("loginBtnMobile");
-    const logoutBtnMobile = document.getElementById("logoutBtnMobile");
-
-    if (userInfoMobile && loginBtnMobile && logoutBtnMobile) {
-      if (isLoggedIn && userName) {
-        userInfoMobile.textContent = `Hello, ${userName}`;
-        userInfoMobile.style.display = "inline";
-        logoutBtnMobile.style.display = "inline";
-        loginBtnMobile.style.display = "none";
-      } else {
-        userInfoMobile.style.display = "none";
-        logoutBtnMobile.style.display = "none";
-        loginBtnMobile.style.display = "inline";
-      }
-    }
-  }
-
-  function updateMobileEventListeners() {
-    const loginBtnMobile = document.getElementById("loginBtnMobile");
-    if (loginBtnMobile) {
-      loginBtnMobile.addEventListener("click", function () {
-        const loginModal = document.getElementById("loginModal");
-        if (loginModal) {
-          loginModal.style.display = "flex";
-          document.body.style.overflow = "hidden";
-
-          // Tutup menu mobile jika terbuka
-          hamburger.classList.remove("active");
-          navMenu.classList.remove("active");
-        }
-      });
-    }
-
-    const logoutBtnMobile = document.getElementById("logoutBtnMobile");
-    if (logoutBtnMobile) {
-      logoutBtnMobile.addEventListener("click", function () {
-        localStorage.removeItem("userName");
-        localStorage.removeItem("userEmail");
-        localStorage.removeItem("isLoggedIn");
-        updateWelcomeMessage();
-        initializeLoginSystem();
-        updateMobileLoginUI();
-        alert("You have been logged out successfully.");
-      });
-    }
   }
 
   // ===== CONTACT FORM HANDLING =====
@@ -358,9 +271,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // Update welcome message jika user baru
         if (!isLoggedIn) {
-          updateWelcomeMessage();
-          initializeLoginSystem();
-          updateMobileLoginUI();
+          updateAuthUI();
         }
 
         // Scroll to result
@@ -445,14 +356,6 @@ document.addEventListener("DOMContentLoaded", function () {
     errorElement.style.display = "none";
   }
 
-  // ===== INITIALIZE ALL SYSTEMS =====
-  updateWelcomeMessage();
-  initializeLoginSystem();
-  setupRealTimeValidation();
-
-  // Scroll event listeners
-  window.addEventListener("scroll", updateActiveNavigation);
-
   // ===== ANIMATIONS =====
   // Animation on scroll
   const observerOptions = {
@@ -512,4 +415,18 @@ document.addEventListener("DOMContentLoaded", function () {
   document.head.appendChild(style);
 
   setInterval(createCoffeeBean, 1000);
+
+  // ===== INITIALIZE ALL SYSTEMS =====
+  initializeUserDatabase();
+  updateAuthUI();
+  setupRealTimeValidation();
+
+  // Event listener untuk logout button
+  const logoutBtn = document.getElementById("logoutBtn");
+  if (logoutBtn) {
+    logoutBtn.addEventListener("click", logout);
+  }
+
+  // Scroll event listeners
+  window.addEventListener("scroll", updateActiveNavigation);
 });
